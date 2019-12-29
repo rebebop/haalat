@@ -6,31 +6,51 @@ type Todo = {
   done: boolean;
 };
 
-type InitialState = {
+type AppState = {
   counter: number;
   todos: Todo[];
 };
 
-test('createStore', () => {
-  const initialState: InitialState = {
+let initialState: AppState;
+beforeEach(() => {
+  initialState = {
     counter: 0,
     todos: [
       { id: 0, description: 'Walk the dog', done: false },
       { id: 1, description: 'Do Homework', done: false },
     ],
   };
+});
 
-  // define store
-  const store = createStore<InitialState>(initialState);
-  store.state.subscribe(val => console.log(val.counter));
+test('createStore sets the correct initial state', done => {
+  const store = createStore<AppState>(initialState);
+  store.state.subscribe(val => {
+    expect(val.counter).toBe(0);
+    expect(val.todos.length).toBe(2);
+    done();
+  });
+});
 
-  // modifiers
-  const counterInc = store.addModifier<number>((state: InitialState, payload: number) => {
+test('select returns a slice of the state', done => {
+  const store = createStore<AppState>(initialState);
+  const storeSlice = store.select<number>((state: AppState) => {
+    return state.counter;
+  });
+  storeSlice.subscribe((val: number) => {
+    expect(val).toBe(0);
+    done();
+  });
+});
+
+test('addModifier modifies the state on action', done => {
+  const store = createStore<AppState>(initialState);
+  const counterInc = store.addModifier<number>((state: AppState, payload: number) => {
     return { ...state, counter: payload };
   });
-  counterInc(4);
-  counterInc(6);
-  counterInc(9);
 
-  expect('2').toBe('2');
+  counterInc.next(5);
+  store.state.subscribe(val => {
+    expect(val.counter).toBe(5);
+    done();
+  });
 });
