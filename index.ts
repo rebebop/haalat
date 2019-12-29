@@ -1,4 +1,4 @@
-import { Store } from './lib/store';
+import { createStore } from './lib/store';
 
 const initialState = {
   counter: 0,
@@ -8,7 +8,7 @@ const initialState = {
   ],
 };
 // define store
-const store = Store(initialState);
+const store = createStore(initialState);
 store.state.subscribe(val => console.log(val.counter));
 
 // modifiers
@@ -17,7 +17,3 @@ const counterInc = (state: any, payload: number) => {
 };
 
 // add modifier on state
-const nx = store.addModifier<number>(counterInc);
-nx.next(4);
-nx.next(5);
-nx.next(9);

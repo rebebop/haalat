@@ -1,24 +1,36 @@
-import { Store } from '../lib/store';
+import { createStore } from '../lib/store';
+
+type Todo = {
+  id: number;
+  description: string;
+  done: boolean;
+};
+
+type InitialState = {
+  counter: number;
+  todos: Todo[];
+};
 
 test('createStore', () => {
-  const initialState = {
+  const initialState: InitialState = {
     counter: 0,
     todos: [
       { id: 0, description: 'Walk the dog', done: false },
       { id: 1, description: 'Do Homework', done: false },
     ],
   };
+
   // define store
-  const store = Store(initialState);
+  const store = createStore<InitialState>(initialState);
   store.state.subscribe(val => console.log(val.counter));
+
   // modifiers
-  const counterInc = (state: any, payload: number) => {
+  const counterInc = store.addModifier<number>((state: InitialState, payload: number) => {
     return { ...state, counter: payload };
-  };
-  const nx = store.addModifier<number>(counterInc);
-  nx.next(4);
-  nx.next(5);
-  nx.next(9);
+  });
+  counterInc(4);
+  counterInc(6);
+  counterInc(9);
 
   expect('2').toBe('2');
 });
